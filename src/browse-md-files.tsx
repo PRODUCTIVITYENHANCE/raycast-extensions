@@ -48,26 +48,54 @@ function formatFileSize(bytes: number): string {
 }
 
 /**
- * 格式化時間
+ * 日期分組類型
  */
-function formatDate(date: Date): string {
+type DateGroup = "today" | "yesterday" | "past7days" | "past30days" | "older";
+
+const DATE_GROUP_LABELS: Record<DateGroup, string> = {
+    today: "今天",
+    yesterday: "昨天",
+    past7days: "過去 7 天",
+    past30days: "過去 30 天",
+    older: "更早",
+};
+
+/**
+ * 根據日期判斷屬於哪個分組
+ */
+function getDateGroup(date: Date): DateGroup {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const past7days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const past30days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    if (days === 0) {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        if (hours === 0) {
-            const minutes = Math.floor(diff / (1000 * 60));
-            return minutes <= 1 ? "剛剛" : `${minutes} 分鐘前`;
-        }
-        return `${hours} 小時前`;
+    if (date >= today) return "today";
+    if (date >= yesterday) return "yesterday";
+    if (date >= past7days) return "past7days";
+    if (date >= past30days) return "past30days";
+    return "older";
+}
+
+/**
+ * 將檔案按日期分組
+ */
+function groupFilesByDate(files: MarkdownFile[]): Map<DateGroup, MarkdownFile[]> {
+    const groups = new Map<DateGroup, MarkdownFile[]>();
+    const groupOrder: DateGroup[] = ["today", "yesterday", "past7days", "past30days", "older"];
+    
+    // 初始化所有分組
+    for (const group of groupOrder) {
+        groups.set(group, []);
     }
-    if (days === 1) return "昨天";
-    if (days < 7) return `${days} 天前`;
-    if (days < 30) return `${Math.floor(days / 7)} 週前`;
-
-    return date.toLocaleDateString("zh-TW");
+    
+    // 將檔案分配到對應分組
+    for (const file of files) {
+        const group = getDateGroup(file.modifiedTime);
+        groups.get(group)!.push(file);
+    }
+    
+    return groups;
 }
 
 /**
@@ -166,6 +194,11 @@ export default function Command() {
         return files.filter(f => f.folder === filterFolder);
     }, [files, filterFolder]);
 
+    // 將過濾後的檔案按日期分組
+    const groupedFiles = useMemo(() => {
+        return groupFilesByDate(filteredFiles);
+    }, [filteredFiles]);
+
     // 取得預覽內容
     const previewContent = useMemo(() => {
         if (!selectedFile) return "";
@@ -201,78 +234,86 @@ export default function Command() {
                 </List.Dropdown>
             }
         >
-            {filteredFiles.map((file) => (
-                <List.Item
-                    key={file.path}
-                    id={file.path}
-                    icon={Icon.Document}
-                    title={file.name}
-                    accessories={[
-                        { tag: file.folder },
-                        { text: formatDate(file.modifiedTime), tooltip: file.modifiedTime.toLocaleString("zh-TW") },
-                    ]}
-                    detail={
-                        <List.Item.Detail
-                            markdown={previewContent}
-                        />
-                    }
-                    actions={
-                        <ActionPanel>
-                            <ActionPanel.Section title="主要">
-                                <Action
-                                    title="複製檔案內容"
-                                    icon={Icon.Clipboard}
-                                    onAction={async () => {
-                                        const content = fs.readFileSync(file.path, "utf-8");
-                                        await Clipboard.copy(content);
-                                        await showToast({ style: Toast.Style.Success, title: "已複製內容" });
-                                    }}
-                                />
-                                <Action
-                                    title={`用 ${preferences.defaultEditor || "預設應用程式"} 開啟根目錄`}
-                                    icon={Icon.AppWindow}
-                                    shortcut={{ modifiers: ["cmd"], key: "return" }}
-                                    onAction={() => {
-                                        if (preferences.defaultEditor) {
-                                            open(rootDir, preferences.defaultEditor);
-                                        } else {
-                                            open(rootDir);
-                                        }
-                                    }}
-                                />
-                            </ActionPanel.Section>
-                            <ActionPanel.Section title="其他開啟方式">
-                                <Action
-                                    title={`用 ${preferences.defaultEditor || "編輯器"} 開啟並定位檔案`}
-                                    icon={Icon.Code}
-                                    shortcut={{ modifiers: ["cmd", "shift"], key: "return" }}
-                                    onAction={() => {
-                                        const editor = preferences.defaultEditor || "Visual Studio Code";
-                                        // 使用 open -a 開啟應用程式，並傳遞資料夾和檔案
-                                        exec(`open -a "${editor}" "${rootDir}" "${file.path}"`);
-                                    }}
-                                />
-                                <Action.Open title="用系統預設開啟" target={file.path} shortcut={{ modifiers: ["cmd"], key: "o" }} />
-                                <Action.ShowInFinder title="在 Finder 中顯示" path={file.path} />
-                            </ActionPanel.Section>
-                            <ActionPanel.Section title="複製">
-                                <Action
-                                    title="複製檔案路徑"
-                                    icon={Icon.Link}
-                                    shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-                                    onAction={async () => {
-                                        await Clipboard.copy(file.path);
-                                        await showToast({ style: Toast.Style.Success, title: "已複製路徑" });
-                                    }}
-                                />
-                            </ActionPanel.Section>
-                            <ActionPanel.Section title="其他">
-                                <Action.Trash title="移到垃圾桶" paths={[file.path]} shortcut={{ modifiers: ["cmd"], key: "backspace" }} />
-                            </ActionPanel.Section>
-                        </ActionPanel>
-                    }
-                />
-            ))}
+            {(["today", "yesterday", "past7days", "past30days", "older"] as DateGroup[]).map((groupKey) => {
+                const groupFiles = groupedFiles.get(groupKey) || [];
+                if (groupFiles.length === 0) return null;
+                
+                return (
+                    <List.Section key={groupKey} title={DATE_GROUP_LABELS[groupKey]} subtitle={`${groupFiles.length} 個檔案`}>
+                        {groupFiles.map((file) => (
+                            <List.Item
+                                key={file.path}
+                                id={file.path}
+                                icon={Icon.Document}
+                                title={file.name}
+                                accessories={[
+                                    { tag: file.folder },
+                                ]}
+                                detail={
+                                    <List.Item.Detail
+                                        markdown={previewContent}
+                                    />
+                                }
+                                actions={
+                                    <ActionPanel>
+                                        <ActionPanel.Section title="主要">
+                                            <Action
+                                                title="複製檔案內容"
+                                                icon={Icon.Clipboard}
+                                                onAction={async () => {
+                                                    const content = fs.readFileSync(file.path, "utf-8");
+                                                    await Clipboard.copy(content);
+                                                    await showToast({ style: Toast.Style.Success, title: "已複製內容" });
+                                                }}
+                                            />
+                                            <Action
+                                                title={`用 ${preferences.defaultEditor || "預設應用程式"} 開啟根目錄`}
+                                                icon={Icon.AppWindow}
+                                                shortcut={{ modifiers: ["cmd"], key: "return" }}
+                                                onAction={() => {
+                                                    if (preferences.defaultEditor) {
+                                                        open(rootDir, preferences.defaultEditor);
+                                                    } else {
+                                                        open(rootDir);
+                                                    }
+                                                }}
+                                            />
+                                        </ActionPanel.Section>
+                                        <ActionPanel.Section title="其他開啟方式">
+                                            <Action
+                                                title={`用 ${preferences.defaultEditor || "編輯器"} 開啟並定位檔案`}
+                                                icon={Icon.Code}
+                                                shortcut={{ modifiers: ["cmd", "shift"], key: "return" }}
+                                                onAction={() => {
+                                                    const editor = preferences.defaultEditor || "Visual Studio Code";
+                                                    // 使用 open -a 開啟應用程式，並傳遞資料夾和檔案
+                                                    exec(`open -a "${editor}" "${rootDir}" "${file.path}"`);
+                                                }}
+                                            />
+                                            <Action.Open title="用系統預設開啟" target={file.path} shortcut={{ modifiers: ["cmd"], key: "o" }} />
+                                            <Action.ShowInFinder title="在 Finder 中顯示" path={file.path} />
+                                        </ActionPanel.Section>
+                                        <ActionPanel.Section title="複製">
+                                            <Action
+                                                title="複製檔案路徑"
+                                                icon={Icon.Link}
+                                                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+                                                onAction={async () => {
+                                                    await Clipboard.copy(file.path);
+                                                    await showToast({ style: Toast.Style.Success, title: "已複製路徑" });
+                                                }}
+                                            />
+                                        </ActionPanel.Section>
+                                        <ActionPanel.Section title="其他">
+                                            <Action.Trash title="移到垃圾桶" paths={[file.path]} shortcut={{ modifiers: ["cmd"], key: "backspace" }} />
+                                        </ActionPanel.Section>
+                                    </ActionPanel>
+                                }
+                            />
+                        ))}
+                    </List.Section>
+                );
+            })}
 
             {!isLoading && filteredFiles.length === 0 && (
                 <List.EmptyView
