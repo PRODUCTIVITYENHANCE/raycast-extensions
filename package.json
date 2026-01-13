@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "add-md-to-folder",
-  "title": "Add md to Folder",
-  "description": "從剪貼板建立 Markdown 檔案到指定資料夾",
+  "title": "Add Md to Folder",
+  "description": "Create Markdown file from clipboard to specified folder",
   "icon": "extension-icon.png",
   "author": "Panpan",
   "categories": [
@@ -13,7 +13,7 @@
     {
       "name": "rootDirectory",
       "title": "Root Directory",
-      "description": "存放 Markdown 檔案的根目錄",
+      "description": "Root directory for Markdown files",
       "type": "directory",
       "required": true,
       "default": "~/Desktop"
@@ -21,7 +21,7 @@
     {
       "name": "defaultSubfolder",
       "title": "Default Subfolder",
-      "description": "預設子資料夾（留空表示直接存到根目錄）",
+      "description": "Default subfolder (leave empty to save to root)",
       "type": "textfield",
       "required": false,
       "default": ""
@@ -29,7 +29,7 @@
     {
       "name": "defaultEditor",
       "title": "Default Editor",
-      "description": "開啟 Markdown 檔案的預設應用程式（例如：Visual Studio Code、Obsidian、Typora）",
+      "description": "Default application to open Markdown files (e.g. Visual Studio Code, Obsidian, Typora)",
       "type": "textfield",
       "required": false,
       "default": "Visual Studio Code"
@@ -38,26 +38,26 @@
   "commands": [
     {
       "name": "add-md-to-folder",
-      "title": "Add md to Folder",
-      "description": "從剪貼板建立 Markdown 檔案（使用預設資料夾）",
+      "title": "Add Md to Folder",
+      "description": "Create Markdown file from clipboard (use default folder)",
       "mode": "no-view"
     },
     {
       "name": "add-md-select-folder",
-      "title": "Add md (Select Folder)",
-      "description": "從剪貼板建立 Markdown 檔案（選擇子資料夾）",
+      "title": "Add Md (Select Folder)",
+      "description": "Create Markdown file from clipboard (select subfolder)",
       "mode": "view"
     },
     {
       "name": "browse-md-files",
       "title": "Browse Markdown Files",
-      "description": "瀏覽根目錄中所有的 Markdown 檔案",
+      "description": "Browse all Markdown files in the root directory",
       "mode": "view"
     },
     {
       "name": "append-to-md",
       "title": "Append to Markdown",
-      "description": "將文字附加到現有的 Markdown 檔案",
+      "description": "Append text to existing Markdown files",
       "mode": "view"
     }
   ],

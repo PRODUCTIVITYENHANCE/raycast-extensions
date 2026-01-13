@@ -1,93 +1,90 @@
-# Add MD to Folder
+# Add Md to Folder
 
-快速將剪貼簿內容或輸入的文字儲存為 Markdown 檔案到指定資料夾。專為筆記工作流設計的 Raycast Extension。
+Quickly save clipboard content or input text as Markdown files to a specified folder. A Raycast Extension designed for note-taking workflows.
 
----
-
-## ✨ 功能特色
-
-| 指令 | 說明 |
-|------|------|
-| **Add md to Folder** | 快速將剪貼簿內容儲存到預設資料夾（無需選擇） |
-| **Add md (Select Folder)** | 選擇子資料夾後儲存，支援自定義檔名 |
-| **Browse Markdown Files** | 瀏覽根目錄中所有的 Markdown 檔案 |
-| **Append to Markdown** | 將文字附加到現有的 Markdown 檔案末尾 |
-
-### 🎯 核心亮點
-- 📋 自動讀取剪貼簿內容
-- 📁 支援多層子資料夾選擇
-- ✏️ 可自定義檔名（留空則使用第一行作為檔名）
-- ⭐ 可設定預設子資料夾，加速常用操作
-- 🔄 自動處理重複檔名（自動加上編號）
 
 ---
 
-## 📦 安裝方式
+## ✨ Features
 
-### 方法一：從原始碼安裝
+| Command | Description |
+|---------|-------------|
+| **Add Md to Folder** | Quickly save clipboard content to default folder (no selection needed) |
+| **Add Md (Select Folder)** | Select a subfolder before saving, with custom filename support |
+| **Browse Markdown Files** | Browse all Markdown files in the root directory |
+| **Append to Markdown** | Append text to an existing Markdown file |
+
+### 🎯 Highlights
+- 📋 Auto-read clipboard content
+- 📁 Multi-level subfolder selection
+- ✏️ Custom filename (leave empty to use the first line)
+- ⭐ Set default subfolder for faster workflow
+- 🔄 Auto-handle duplicate filenames (add numbers)
+
+---
+
+## 📦 Installation
+
+### From Source
 
 ```bash
-# 1. 解壓縮（如果是 zip 檔案）
-unzip add-md-to-folder.zip -d add-md-to-folder
-
-# 2. 進入資料夾
+# Clone or extract the extension
 cd add-md-to-folder
 
-# 3. 安裝依賴
+# Install dependencies
 npm install
 
-# 4. 編譯並安裝到 Raycast
+# Build and install to Raycast
 npm run build
 ```
 
-安裝完成後，在 Raycast 中搜尋 `Add md` 即可使用！
+After installation, search for `Add Md` in Raycast to start using!
 
-### 方法二：開發模式
+### Development Mode
 
 ```bash
 npm install
 npm run dev
 ```
 
-開發模式支援熱重載，方便即時測試修改。
+Development mode supports hot reload for instant testing.
 
 ---
 
-## ⚙️ 設定選項
+## ⚙️ Settings
 
-在 Raycast 中開啟 Extension 設定，可以調整以下選項：
+Open the Extension settings in Raycast to configure:
 
-| 設定 | 說明 | 預設值 |
-|------|------|--------|
-| **Root Directory** | 存放 Markdown 檔案的根目錄 | `~/Desktop` |
-| **Default Subfolder** | 預設子資料夾（留空表示直接存到根目錄） | 空 |
-| **Default Editor** | 開啟 Markdown 檔案的預設應用程式 | `Visual Studio Code` |
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Root Directory** | Root directory to store Markdown files | `~/Desktop` |
+| **Default Subfolder** | Default subfolder (leave empty to save to root) | Empty |
+| **Default Editor** | Default application to open Markdown files | `Visual Studio Code` |
 
 ---
 
-## 🚀 使用方式
+## 🚀 Usage
 
-### 快速儲存（Add md to Folder）
-1. 複製任意文字到剪貼簿
-2. 開啟 Raycast，輸入 `Add md to Folder`
-3. 自動儲存到預設資料夾 ✅
+### Quick Save (Add Md to Folder)
+1. Copy any text to clipboard
+2. Open Raycast, type `Add Md to Folder`
+3. Auto-saved to default folder ✅
 
-### 選擇資料夾儲存（Add md Select Folder）
-1. 開啟 Raycast，輸入 `Add md Select Folder`
-2. 選擇目標子資料夾
-3. （可選）輸入自定義檔名
-4. 編輯或確認內容
-5. 按 `Enter` 儲存 ✅
+### Save with Folder Selection (Add Md Select Folder)
+1. Open Raycast, type `Add Md Select Folder`
+2. Select target subfolder
+3. (Optional) Enter custom filename
+4. Edit or confirm content
+5. Press `Enter` to save ✅
+6. Press `Cmd + Shift + Enter` to save and open in editor ✅
 
-### 檔名規則
-1. **有輸入自定義檔名** → 使用自定義檔名
-2. **沒有輸入，但內容第一行有文字** → 使用第一行作為檔名
-3. **都沒有** → 使用時間戳記命名（如 `note-20260113123000`）
+### Filename Rules
+1. **Custom filename provided** → Use custom filename
+2. **No custom filename, but first line has text** → Use first line as filename
+3. **Both empty** → Use timestamp (e.g., `note-20260113123000`)
 
 ---
 
 ## 📝 License
 
 MIT License
-
-

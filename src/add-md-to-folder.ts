@@ -8,23 +8,23 @@ interface Preferences {
 }
 
 /**
- * 清理檔名：移除不允許的字元
+ * Sanitize filename: remove illegal characters
  */
 function sanitizeFilename(name: string): string {
-  // 移除 macOS 不允許的字元 (/ : * ? " < > | \)
+  // Remove macOS illegal characters (/ : * ? " < > | \)
   let sanitized = name.replace(/[/:*?"<>|\\]/g, " ");
-  // 移除多餘空格
+  // Remove extra spaces
   sanitized = sanitized.replace(/\s+/g, " ").trim();
-  // 限制長度為 80 字元
+  // Limit length to 80 characters
   return sanitized.slice(0, 80);
 }
 
 /**
- * 產生唯一的檔案路徑（處理重複檔名）
+ * Generate unique file path (handle duplicates)
  */
 function getUniqueFilePath(directory: string, filename: string): string {
   const ext = ".md";
-  let filePath = path.join(directory, `${filename}${ext}`);
+  const filePath = path.join(directory, `${filename}${ext}`);
 
   if (!fs.existsSync(filePath)) {
     return filePath;
@@ -39,7 +39,7 @@ function getUniqueFilePath(directory: string, filename: string): string {
 }
 
 /**
- * 展開 ~ 為 home 目錄
+ * Expand ~ to home directory
  */
 function expandHome(filepath: string): string {
   if (filepath.startsWith("~")) {
@@ -49,13 +49,13 @@ function expandHome(filepath: string): string {
 }
 
 /**
- * 主要的儲存邏輯
+ * Main save logic
  */
 export async function saveMarkdownFile(targetFolder?: string): Promise<void> {
   const preferences = getPreferenceValues<Preferences>();
   const rootDir = expandHome(preferences.rootDirectory);
 
-  // 決定目標資料夾
+  // Determine target directory
   let targetDir: string;
   if (targetFolder) {
     targetDir = path.join(rootDir, targetFolder);
@@ -65,58 +65,58 @@ export async function saveMarkdownFile(targetFolder?: string): Promise<void> {
     targetDir = rootDir;
   }
 
-  // 確保目標資料夾存在
+  // Ensure target directory exists
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
-  // 從剪貼板讀取內容
+  // Read content from clipboard
   const content = await Clipboard.readText();
 
   if (!content || content.trim() === "") {
     await showToast({
       style: Toast.Style.Failure,
-      title: "剪貼板是空的！",
+      title: "Clipboard is empty!",
     });
     return;
   }
 
-  // 取得第一行作為檔名
+  // Use first line as filename
   const lines = content.split("\n");
   const firstLine = lines[0].trim();
 
-  // 清理檔名
+  // Sanitize filename
   let filename = sanitizeFilename(firstLine);
 
-  // 如果第一行為空，使用時間戳記
+  // If first line is empty, use timestamp
   if (!filename) {
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 15);
     filename = `note-${timestamp}`;
   }
 
-  // 取得唯一的檔案路徑
+  // Get unique file path
   const filePath = getUniqueFilePath(targetDir, filename);
 
   try {
-    // 寫入檔案
+    // Write to file
     fs.writeFileSync(filePath, content, "utf-8");
 
     const savedFilename = path.basename(filePath);
-    const folderName = targetFolder || preferences.defaultSubfolder || "根目錄";
+    const folderName = targetFolder || preferences.defaultSubfolder || "Root Directory";
 
-    await showHUD(`✅ 已儲存: ${savedFilename} → ${folderName}`);
+    await showHUD(`✅ Saved: ${savedFilename} → ${folderName}`);
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
-      title: "儲存失敗！",
+      title: "Save failed!",
       message: String(error),
     });
   }
 }
 
 /**
- * 快速儲存命令（使用預設資料夾）
+ * Quick save command (use default folder)
  */
 export default async function Command() {
   await saveMarkdownFile();
