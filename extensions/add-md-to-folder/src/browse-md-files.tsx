@@ -2,13 +2,6 @@ import { Action, ActionPanel, List, getPreferenceValues, Icon, showToast, Toast,
 import { useState, useEffect, useMemo } from "react";
 import * as fs from "fs";
 import * as path from "path";
-import { exec } from "child_process";
-
-interface Preferences {
-  rootDirectory: string;
-  defaultSubfolder: string;
-  defaultEditor: string;
-}
 
 interface MarkdownFile {
   name: string;
@@ -258,7 +251,7 @@ export default function Command() {
                         onAction={() => {
                           const editor = preferences.defaultEditor || "Visual Studio Code";
                           // Open application with folder and file
-                          exec(`open -a "${editor}" "${rootDir}" "${file.path}"`);
+                          open(file.path, editor);
                         }}
                       />
                       <Action.Open

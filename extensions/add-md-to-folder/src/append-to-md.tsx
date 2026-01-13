@@ -14,11 +14,6 @@ import { useState, useEffect } from "react";
 import * as fs from "fs";
 import * as path from "path";
 
-interface Preferences {
-  rootDirectory: string;
-  defaultSubfolder: string;
-}
-
 interface MarkdownFile {
   name: string;
   path: string;

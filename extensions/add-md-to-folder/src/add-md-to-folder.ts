@@ -2,11 +2,6 @@ import { Clipboard, showHUD, getPreferenceValues, showToast, Toast } from "@rayc
 import * as fs from "fs";
 import * as path from "path";
 
-interface Preferences {
-  rootDirectory: string;
-  defaultSubfolder: string;
-}
-
 /**
  * Sanitize filename: remove illegal characters
  */
