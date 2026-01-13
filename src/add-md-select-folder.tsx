@@ -15,11 +15,7 @@ import { useState, useEffect } from "react";
 import * as fs from "fs";
 import * as path from "path";
 
-interface Preferences {
-  rootDirectory: string;
-  defaultSubfolder: string;
-  defaultEditor: string;
-}
+
 
 interface FolderItem {
   name: string;
@@ -77,7 +73,7 @@ function getSubfolders(rootDir: string, currentPath: string = "", depth: number 
   const defaultSubfolder = preferences.defaultSubfolder;
   const folders: FolderItem[] = [];
 
-  // 限制遞迴深度
+  // Limit recursion depth
   if (depth > 3) return folders;
 
   const fullPath = currentPath ? path.join(rootDir, currentPath) : rootDir;
@@ -86,7 +82,7 @@ function getSubfolders(rootDir: string, currentPath: string = "", depth: number 
     const items = fs.readdirSync(fullPath, { withFileTypes: true });
 
     for (const item of items) {
-      // 跳過隱藏資料夾
+      // Skip hidden folders
       if (item.name.startsWith(".")) continue;
 
       if (item.isDirectory()) {
@@ -245,7 +241,7 @@ export default function Command() {
     const filePath = await saveFile(values);
     if (filePath) {
       const savedFilename = path.basename(filePath);
-      const editorName = defaultEditor || "預設應用程式";
+      const editorName = defaultEditor || "Default App";
 
       try {
         // Open file with specified editor
